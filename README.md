@@ -1,3 +1,5 @@
+[![Code Climate](https://codeclimate.com/github/EddyLuten/ishin/badges/gpa.svg)](https://codeclimate.com/github/EddyLuten/ishin) [![Gem Version](https://img.shields.io/gem/v/ishin.svg)](https://rubygems.org/gems/ishin)
+
 # Ishin
 
 Ishin converts Ruby objects into their Hash representations. It works with plain old classes, extended classes, classes with mixins, and hashes (see Usage for more on that).
