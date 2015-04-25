@@ -1,4 +1,7 @@
-[![Code Climate](https://codeclimate.com/github/EddyLuten/ishin/badges/gpa.svg)](https://codeclimate.com/github/EddyLuten/ishin) [![Gem Version](https://img.shields.io/gem/v/ishin.svg)](https://rubygems.org/gems/ishin)
+[![Code Climate](https://codeclimate.com/github/EddyLuten/ishin/badges/gpa.svg)](https://codeclimate.com/github/EddyLuten/ishin)
+[![Test Coverage](https://codeclimate.com/github/EddyLuten/ishin/badges/coverage.svg)](https://codeclimate.com/github/EddyLuten/ishin)
+[![Gem Version](https://img.shields.io/gem/v/ishin.svg)](https://rubygems.org/gems/ishin)
+[![Build Status](https://travis-ci.org/EddyLuten/ishin.svg?branch=master)](https://travis-ci.org/EddyLuten/ishin)
 
 # Ishin
 
