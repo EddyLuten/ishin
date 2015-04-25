@@ -8,6 +8,63 @@ RSpec.configure do |config|
   config.run_all_when_everything_filtered = true
 end
 
+SimpleStruct = Struct.new(:test)
+
+class MixedInForRecursion
+  include Ishin::Mixin
+
+  attr_reader :value
+
+  def initialize
+    @value = SimpleStruct.new('recursive')
+  end
+end
+
+class MixedInDeepRecursion
+  include Ishin::Mixin
+
+  attr_reader :value
+
+  def initialize
+    @value =
+      SimpleStruct.new(
+        SimpleStruct.new(
+          SimpleStruct.new('deep')
+        )
+      )
+  end
+end
+
+class MixedInClass
+  include Ishin::Mixin
+
+  attr_reader :key
+
+  def initialize
+    @key = 'value'
+  end
+end
+
+class WontOverrideMixinClass
+  include Ishin::Mixin
+
+  attr_reader :key
+
+  def initialize
+    @key = 'value'
+  end
+
+  def to_hash
+    { existing: true }
+  end
+end
+
+class ExtendedMixedInClass < MixedInClass
+  def to_hash
+    super.merge({ merged: true })
+  end
+end
+
 class SimpleClass
   attr_accessor :test
 

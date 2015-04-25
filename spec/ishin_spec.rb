@@ -1,13 +1,13 @@
 require 'spec_helper'
 
 describe Ishin do
+  let(:simple_class) { SimpleClass.new('class value') }
+
   it 'has a version number' do
     expect(Ishin::VERSION).not_to be nil
   end
 
   context '#to_hash' do
-    let(:simple_struct) { Struct.new(:test) }
-    let(:simple_class) { SimpleClass.new('class value') }
     let(:class_variable) { HasClassVariable.new }
     let(:tiny_hash) {{ x: true }}
     let(:string_hash) {{ 'x' => true }}
@@ -37,20 +37,20 @@ describe Ishin do
 
     context 'struct -> hash' do
       it 'converts a struct instance without options provided' do
-        obj = simple_struct.new('value')
+        obj = SimpleStruct.new('value')
         expect(Ishin.to_hash obj).to eq({ test: 'value' })
       end
 
       it 'converts a struct instance and does not recurse' do
-        obj = simple_struct.new(simple_struct.new('value'))
+        obj = SimpleStruct.new(SimpleStruct.new('value'))
         result = Ishin.to_hash obj
 
-        expect(result[:test]).to be_a(simple_struct)
+        expect(result[:test]).to be_a(SimpleStruct)
         expect(result[:test][:test]).to eq('value')
       end
 
       it 'converts a struct instance recursively' do
-        obj = simple_struct.new(simple_struct.new('value'))
+        obj = SimpleStruct.new(SimpleStruct.new('value'))
         result = Ishin.to_hash obj, recursive: true
 
         expect(result).to eq({
@@ -61,7 +61,7 @@ describe Ishin do
       end
 
       it 'converts, recursion_depth > required recursion has no effect' do
-        obj = simple_struct.new(simple_struct.new('value'))
+        obj = SimpleStruct.new(SimpleStruct.new('value'))
         result = Ishin.to_hash obj, recursive: true, recursion_depth: 5000
 
         expect(result).to eq({
@@ -72,18 +72,18 @@ describe Ishin do
       end
 
       it 'converts a struct instance recursively to the set recursion depth' do
-        obj = simple_struct.new(simple_struct.new(simple_struct.new('value')))
+        obj = SimpleStruct.new(SimpleStruct.new(SimpleStruct.new('value')))
         result = Ishin.to_hash obj, recursive: true, recursion_depth: 1
 
         expect(result).to eq(
           test: {
-            test: simple_struct.new('value')
+            test: SimpleStruct.new('value')
           }
         )
       end
 
       it 'converts a struct containing class instances recursively' do
-        obj = simple_struct.new(simple_class)
+        obj = SimpleStruct.new(simple_class)
         result = Ishin.to_hash obj, recursive: true
 
         expect(result).to eq({
@@ -94,7 +94,7 @@ describe Ishin do
       end
 
       it 'converts a struct instance recursively and does not symbolize the names' do
-        obj = simple_struct.new(simple_struct.new(simple_struct.new('value')))
+        obj = SimpleStruct.new(SimpleStruct.new(SimpleStruct.new('value')))
         result = Ishin.to_hash obj, recursive: true, recursion_depth: 3, symbolize: false
 
         expect(result).to eq({
@@ -154,6 +154,40 @@ describe Ishin do
           nothing: 'mixin value'
         })
       end
+    end
+  end
+
+  context 'Mixin' do
+    let(:mixed_in) { MixedInClass.new }
+    let(:wont_override) { WontOverrideMixinClass.new }
+    let(:extended_mixed_in) { ExtendedMixedInClass.new }
+    let(:recursive) { MixedInForRecursion.new }
+    let(:deep) { MixedInDeepRecursion.new }
+
+    it 'provides a working to_hash method when mixed in' do
+      expect(mixed_in.to_hash).to eq({ key: 'value' })
+    end
+
+    it 'will not override any existing to_hash method' do
+      expect(wont_override.to_hash).to eq({ existing: true })
+    end
+
+    it 'can be overridden if the mixedin class is extended' do
+      expect(extended_mixed_in.to_hash).to eq({key: 'value', merged: true})
+    end
+
+    it 'accepts the recursive option' do
+      result = recursive.to_hash(recursive: true)
+      expect(result).to eq({ value: { test: 'recursive' } })
+    end
+
+    it 'accepts the recursion_depth option' do
+      result = deep.to_hash(recursive: true, recursion_depth: 3)
+      expect(result).to eq({ value: { test: { test: { test: 'deep' } } } })
+    end
+
+    it 'accepts the symbolize option' do
+      expect(mixed_in.to_hash(symbolize: false)).to eq({ 'key' => 'value' })
     end
   end
 end

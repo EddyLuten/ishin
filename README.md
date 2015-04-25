@@ -23,7 +23,9 @@ Or install it manually by:
 
     gem install ishin
 
-## Usage
+## Example
+
+As a class method callable on any object:
 
 ```ruby
 require 'ishin'
@@ -31,7 +33,19 @@ require 'ishin'
 hash = Ishin.to_hash(my_object)
 ```
 
-### Introduction
+Or included in your object as a mixin:
+
+```ruby
+class YourClass
+  include Ishin::Mixin
+  # etc.
+end
+
+instance = YourClass.new
+hash = instance.to_hash
+```
+
+### Usage
 
 A simple example is worth a thousand words:
 
@@ -114,6 +128,19 @@ Ishin.to_hash(lassie, symbolize: false)
 # => {"says"=>"Timmy is stuck in a well!"}
 ```
 When setting the `symbolize` option to `false`, the explicit conversion of strings to symbols is prevented. This, however, does *not* mean that hashes whose keys are already symbols are converted into string-based keys.
+
+## As a Mixin
+
+To use Ishin as a mixin in your own objects, simply include `Ishin::Mixin`:
+
+```ruby
+class MyObject
+  include Ishin::Mixin
+  # etc.
+end
+```
+
+Your object now exposes a method named `to_hash` taking the same options at the `Ishin::to_hash` class method documented above.
 
 ## Running the Specs
 

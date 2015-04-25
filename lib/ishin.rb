@@ -2,6 +2,12 @@ require 'ishin/version'
 
 module Ishin
 
+  module Mixin
+    def to_hash options = {}
+      Ishin::to_hash(self, options)
+    end
+  end
+
   def self.to_hash(object, options = {})
     options = defaults.merge(options)
     result = {}
