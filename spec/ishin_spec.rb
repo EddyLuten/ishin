@@ -92,19 +92,6 @@ describe Ishin do
           }
         })
       end
-
-      it 'converts a struct instance recursively and does not symbolize the names' do
-        obj = SimpleStruct.new(SimpleStruct.new(SimpleStruct.new('value')))
-        result = Ishin.to_hash obj, recursive: true, recursion_depth: 3, symbolize: false
-
-        expect(result).to eq({
-          'test' => {
-            'test' => {
-              'test' => 'value'
-            }
-          }
-        })
-      end
     end
 
     context 'object -> hash' do

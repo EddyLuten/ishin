@@ -3,7 +3,7 @@ require 'ishin/version'
 module Ishin
 
   module Mixin
-    def to_hash options = {}
+    def to_hash(options = {})
       Ishin::to_hash(self, options)
     end
   end
@@ -13,12 +13,9 @@ module Ishin
     result = {}
 
     case object
-    when Struct
-      struct_to_hash(result, object, options)
-    when Hash
-      hash_to_hash(result, object, options)
-    else
-      object_to_hash(result, object, options)
+      when Struct then struct_to_hash(result, object, options)
+      when Hash   then hash_to_hash(result, object, options)
+      else             object_to_hash(result, object, options)
     end
 
     result
@@ -31,28 +28,26 @@ module Ishin
     options
   end
 
-  def self.assign_value(result, key, value, options, new_options)
-    result[key] = should_recurse?(options, value) ? to_hash(value, new_options) : value
-  end
-
   def self.hash_to_hash(result, object, options)
-    return result.replace(object) unless options[:recursive]
+    return result.replace(object) if !should_recurse?(options) && options[:symbolize]
 
     new_options = decrement_recursion_depth(options.clone)
 
     object.each do |key, value|
       key = key.to_sym if options[:symbolize] && key.is_a?(String)
-      assign_value(result, key, value, options, new_options)
+
+      result[key] = is_native_type?(value) ? value : to_hash(value, new_options)
     end
   end
 
-  def self.struct_to_hash result, object, options
-    new_options = decrement_recursion_depth options.clone
+  def self.struct_to_hash(result, object, options)
+    result.replace(object.to_h)
+    return unless should_recurse?(options)
 
-    object.members.each do |member|
-      key = options[:symbolize] ? member : member.to_s
-      value = object[member]
-      assign_value(result, key, value, options, new_options)
+    new_options = decrement_recursion_depth(options.clone)
+
+    result.each do |key, value|
+      result[key] = to_hash(value, new_options) unless is_native_type?(value)
     end
   end
 
@@ -63,15 +58,20 @@ module Ishin
       value = object.instance_variable_get(var)
       key = var.to_s.delete('@')
       key = key.to_sym if options[:symbolize]
-      assign_value(result, key, value, options, new_options)
+
+      if should_recurse?(options) && !is_native_type?(value)
+        result[key] = to_hash(value, new_options)
+      else
+        result[key] = value
+      end
     end
   end
 
-  def self.should_recurse? options, value
-    options[:recursive] && options[:recursion_depth] > 0 && !is_native_type?(value)
+  def self.should_recurse?(options)
+    options[:recursive] && options[:recursion_depth] > 0
   end
 
-  def self.is_native_type? value
+  def self.is_native_type?(value)
     [ String, Numeric, TrueClass, FalseClass ].any? { |i| value.is_a?(i) }
   end
 

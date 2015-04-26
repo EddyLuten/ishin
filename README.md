@@ -147,3 +147,12 @@ Your object now exposes a method named `to_hash` taking the same options at the 
 Once `bundle` is executed, simply run:
 
     rake spec
+
+## Changelog
+
+* 0.1.0
+  * Initial release.
+* 0.2.0
+  * Added `Ishin::Mixin`.
+* 0.2.1
+  * Now using `Struct.to_h` when converting a `Struct` instance.
