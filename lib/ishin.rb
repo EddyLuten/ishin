@@ -58,7 +58,8 @@ module Ishin
 
     object.instance_variables.each do |var|
       value = object.instance_variable_get(var)
-      key = instance_variable_to_key(options[:symbolize])
+      key = var.to_s.delete('@')
+      key = key.to_sym if options[:symbolize]
 
       if should_recurse?(options) && !native_type?(value)
         result[key] = to_hash(value, new_options)
@@ -66,11 +67,6 @@ module Ishin
         result[key] = value
       end
     end
-  end
-
-  def self.instance_variable_to_key(symbolize)
-    result = symbolize.to_s.delete('@')
-    symbolize ? result.to_sym : result
   end
 
   def self.evaluate_methods(result, object, options)
