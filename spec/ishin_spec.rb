@@ -142,6 +142,46 @@ describe Ishin do
         })
       end
     end
+
+    context 'method evaluation' do
+      let(:dog) { Dog.new }
+      let(:speaker) { Speaker.new }
+
+      it 'evaluates methods correctly' do
+        options = { evaluate: [ :blurb ] }
+
+        expect(Ishin.to_hash(dog, options)).to eq({
+          blurb: 'I am a Dog, My species is Canis Lupus, My genus is Lupus.'
+        })
+      end
+
+      it 'does not evaluate methods by default' do
+        expect(Ishin.to_hash(dog)).to be_empty
+      end
+
+      it 'does not symbolize method names when symbolize is false' do
+        options = { evaluate: [ :blurb ], symbolize: false }
+
+        expect(Ishin.to_hash(dog, options)).to eq({
+          'blurb' => 'I am a Dog, My species is Canis Lupus, My genus is Lupus.'
+        })
+      end
+
+      it 'does not blow up when a bad method name was provided' do
+        options = { evaluate: [ :bark ] }
+        expect(Ishin.to_hash(dog, options)).to be_empty
+      end
+
+      it 'raises an exception when evaluating a method requiring parameters' do
+        options = { evaluate: [ :speak ] }
+        expect { Ishin.to_hash(speaker, options) }.to raise_error(ArgumentError)
+      end
+
+      it 'does not raise an exception when evaluating a method with optional parameters' do
+        options = { evaluate: [ :say ] }
+        expect(Ishin.to_hash(speaker, options)).to eq({ say: 'Say what?' })
+      end
+    end
   end
 
   context 'Mixin' do

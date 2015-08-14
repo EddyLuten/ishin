@@ -129,6 +129,25 @@ Ishin.to_hash(lassie, symbolize: false)
 ```
 When setting the `symbolize` option to `false`, the explicit conversion of strings to symbols is prevented. This, however, does *not* mean that hashes whose keys are already symbols are converted into string-based keys.
 
+### Evaluating Methods
+
+Normally, Ishin does not evaluate methods, but is possible to do so through the optional `evaluate` option by passing it an array of method names to evaluate.
+
+```ruby
+class Speaker
+  def say
+    "Say what?"
+  end
+end
+
+speaker = Speaker.new
+# => #<Speaker:0x007fb2bb1812d8>
+Ishin.to_hash(speaker, evaluate: [ :say ])
+# => {:say=>"Say what?"}
+```
+
+It is currently only possible to evaluate methods that do not require arguments.
+
 ## As a Mixin
 
 To use Ishin as a mixin in your own objects, simply include `Ishin::Mixin`:

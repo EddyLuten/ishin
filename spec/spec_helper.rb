@@ -108,3 +108,33 @@ class HasClassVariable
     @only_this = 'value'
   end
 end
+
+class Dog
+  include Ishin::Mixin
+
+  def name
+    "I am a Dog"
+  end
+
+  def species
+    "My species is Canis Lupus"
+  end
+
+  def genus
+    "My genus is Lupus"
+  end
+
+  def blurb
+    "#{name}, #{species}, #{genus}."
+  end
+end
+
+class Speaker
+  def speak(what)
+    "Say #{what}?"
+  end
+
+  def say(what = 'what')
+    speak(what)
+  end
+end
