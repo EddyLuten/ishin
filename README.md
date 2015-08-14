@@ -175,3 +175,5 @@ Once `bundle` is executed, simply run:
   * Added `Ishin::Mixin`.
 * 0.2.1
   * Now using `Struct.to_h` when converting a `Struct` instance.
+* 0.3.0
+  * Added support for evaluating object methods.
