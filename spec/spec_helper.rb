@@ -1,4 +1,4 @@
-require "codeclimate-test-reporter"
+require 'codeclimate-test-reporter'
 CodeClimate::TestReporter.start
 
 $LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
@@ -61,14 +61,14 @@ end
 
 class ExtendedMixedInClass < MixedInClass
   def to_hash
-    super.merge({ merged: true })
+    super.merge(merged: true)
   end
 end
 
 class SimpleClass
   attr_accessor :test
 
-  def initialize value
+  def initialize(value)
     @test = value
   end
 end
@@ -113,15 +113,15 @@ class Dog
   include Ishin::Mixin
 
   def name
-    "I am a Dog"
+    'I am a Dog'
   end
 
   def species
-    "My species is Canis Lupus"
+    'My species is Canis Lupus'
   end
 
   def genus
-    "My genus is Lupus"
+    'My genus is Lupus'
   end
 
   def blurb

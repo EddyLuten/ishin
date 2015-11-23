@@ -5,7 +5,9 @@
 
 # Ishin
 
-Ishin converts Ruby objects into their Hash representations. It works with plain old classes, extended classes, classes with mixins, and hashes (see Usage for more on that).
+Ishin converts Ruby objects into their Hash representations. It works with plain
+old classes, extended classes, classes with mixins, and hashes (see Usage for
+more information).
 
 ## Installation
 
@@ -22,6 +24,12 @@ And then execute:
 Or install it manually by:
 
     gem install ishin
+
+## Requirements
+
+Ishin does not require any other gems to run. There are a few gems used during
+development only, but don't affect runtime performance. For details, see
+`ishin.gemspec` in the root directory of the project.
 
 ## Example
 
@@ -66,7 +74,9 @@ dog_hash = Ishin.to_hash(dog)
 
 ### Recursion
 
-Ishin also handles object instances nested within other object instances. By default, recursive hash conversion is turned off. To enable recursion, set the `recursive` option to `true`:
+Ishin also handles object instances nested within other object instances. By
+default, recursive hash conversion is turned off. To enable recursion, set the
+`recursive` option to `true`:
 
 ```ruby
 test_struct = Struct.new(:value)
@@ -79,7 +89,9 @@ Ishin.to_hash(nested_structs, recursive: true)
 
 ### Recursion Depth
 
-For deeply nested object instances, a maximum recursion depth can be provided in combination with the `recursive` option. The default recursion depth is one (initial call + 1).
+For deeply nested object instances, a maximum recursion depth can be provided in
+combination with the `recursive` option. The default recursion depth is one
+(initial call + 1).
 
 ```ruby
 nest_me = Struct.new(:value)
@@ -89,11 +101,18 @@ Ishin.to_hash(deep_nesting, recursive: true, recursion_depth: 2)
 # => {:value=>{:value=>{:value=>#<struct value="such depth">}}}
 ```
 
-Notice in the above example that the recursion stopped after 3 steps (initial call + 2).
+Notice in the above example that the recursion stopped after 3 steps (initial
+call + 2).
+
+**Warning:** Increasing the recursion depth will affect the runtime of the
+conversion process significantly. To see how drastic increased recursion levels
+affect performance, run `ruby benchmarks/recursive_bench.rb`
 
 ### Expanding Hashes using Recursion
 
-Using recursion, it is also possible to convert hashes containing object instances to a hash-only representation as well. Notice that this only works if the `recursive` option is provided.
+Using recursion, it is also possible to convert hashes containing object
+instances to a hash-only representation as well. Notice that this only works if
+the `recursive` option is provided.
 
 ```ruby
 another_struct = Struct.new(:value)
@@ -105,11 +124,13 @@ Ishin.to_hash(my_hash, recursive: true)
 # => {:my_struct=>{:value=>"yup, it's a struct"}}
 ```
 
-Keep in mind that the `recursive` option works in conjunction with the `recursion_depth` option.
+Keep in mind that the `recursive` option works in conjunction with the
+`recursion_depth` option.
 
 ### Symbolizing Keys
 
-By default, Ishin stores key names as symbols. This behavior can be disabled by setting the `symbolize` option to `false`.
+By default, Ishin stores key names as symbols. This behavior can be disabled by
+setting the `symbolize` option to `false`.
 
 ```ruby
 class Dog
@@ -127,11 +148,14 @@ Ishin.to_hash(lassie)
 Ishin.to_hash(lassie, symbolize: false)
 # => {"says"=>"Timmy is stuck in a well!"}
 ```
-When setting the `symbolize` option to `false`, the explicit conversion of strings to symbols is prevented. This, however, does *not* mean that hashes whose keys are already symbols are converted into string-based keys.
+When setting the `symbolize` option to `false`, the explicit conversion of
+strings to symbols is prevented. This, however, does *not* mean that hashes
+whose keys are already symbols are converted into string-based keys.
 
 ### Evaluating Methods
 
-Normally, Ishin does not evaluate methods, but is possible to do so through the optional `evaluate` option by passing it an array of method names to evaluate.
+Normally, Ishin does not evaluate methods, but is possible to do so through the
+optional `evaluate` option by passing it an array of method names to evaluate.
 
 ```ruby
 class Speaker
@@ -159,13 +183,29 @@ class MyObject
 end
 ```
 
-Your object now exposes a method named `to_hash` taking the same options at the `Ishin::to_hash` class method documented above.
+Your object now exposes a method named `to_hash` taking the same options at the
+`Ishin::to_hash` class method documented above.
+
+## Running Code Quality Tools
+
+To run the code quality tools Rubocop, Reek, and RSpec, run the following
+command:
+
+    rake
 
 ## Running the Specs
 
 Once `bundle` is executed, simply run:
 
     rake spec
+
+## Running the Benchmarks
+
+To give an idea on what kind of performance can be expected from Ishin, there
+are a few IPS (iterations per second) benchmarks located in the `benchmarks`
+directory. These can all be executed in series by running:
+
+    rake bench
 
 ## Changelog
 
@@ -177,3 +217,5 @@ Once `bundle` is executed, simply run:
   * Now using `Struct.to_h` when converting a `Struct` instance.
 * 0.3.0
   * Added support for evaluating object methods.
+* 0.4.0
+  * Cleanup: preparing an overhaul

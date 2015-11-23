@@ -1,27 +1,28 @@
 require 'ishin/version'
+require 'ishin/mixin'
 
+# Ishin is an object to hash converter Ruby Gem
 module Ishin
-  module Mixin
-    def to_hash(options = {})
-      Ishin.to_hash(self, options)
-    end
-  end
-
+  # Converts objects into their hash representations.
+  # @param object [Object] an object to convert
+  # @param options [Hash] a hash containing conversion options
   def self.to_hash(object, options = {})
     options = defaults.merge(options)
     result = {}
-
-    case object
-    when Struct then struct_to_hash(result, object, options)
-    when Hash   then hash_to_hash(result, object, options)
-    else             object_to_hash(result, object, options)
-    end
-
+    type_to_hash(result, object, options)
     evaluate_methods(result, object, options)
     result
   end
 
   private
+
+  def self.type_to_hash(result, object, options)
+    case object
+    when Struct then struct_to_hash(result, object, options)
+    when Hash   then hash_to_hash(result, object, options)
+    else             object_to_hash(result, object, options)
+    end
+  end
 
   def self.decrement_recursion_depth(options)
     options[:recursion_depth] = [0, options[:recursion_depth] - 1].max
@@ -36,10 +37,16 @@ module Ishin
     new_options = decrement_recursion_depth(options.clone)
 
     object.each do |key, value|
-      key = key.to_sym if options[:symbolize] && key.is_a?(String)
-
-      result[key] = native_type?(value) ? value : to_hash(value, new_options)
+      result[hash_key(key, options)] = hash_value(value, new_options)
     end
+  end
+
+  def self.hash_key(key, options)
+    options[:symbolize] && key.is_a?(String) ? key.to_sym : key
+  end
+
+  def self.hash_value(value, new_options)
+    native_type?(value) ? value : to_hash(value, new_options)
   end
 
   def self.struct_to_hash(result, object, options)
@@ -58,25 +65,37 @@ module Ishin
 
     object.instance_variables.each do |var|
       value = object.instance_variable_get(var)
-      key = var.to_s.delete('@')
-      key = key.to_sym if options[:symbolize]
+      key = instance_variable_to_key(var, options)
+      result[key] = object_value(value, options, new_options)
+    end
+  end
 
-      if should_recurse?(options) && !native_type?(value)
-        result[key] = to_hash(value, new_options)
-      else
-        result[key] = value
-      end
+  def self.instance_variable_to_key(instance_variable, options)
+    key = instance_variable.to_s.delete('@')
+    options[:symbolize] ? key.to_sym : key
+  end
+
+  def self.object_value(value, options, new_options)
+    if should_recurse?(options) && !native_type?(value)
+      to_hash(value, new_options)
+    else
+      value
     end
   end
 
   def self.evaluate_methods(result, object, options)
-    return if options[:evaluate].nil? || options[:evaluate].empty?
+    evaluate = options[:evaluate]
+    return if !evaluate || evaluate.empty?
 
-    options[:evaluate].each do |method|
-      next unless object.methods.include?(method)
-      key_name = options[:symbolize] ? method : method.to_s
-      result[key_name] = object.send(method)
+    evaluate.each do |method|
+      if object.methods.include?(method)
+        result[method_name_to_key(method, options)] = object.send(method)
+      end
     end
+  end
+
+  def self.method_name_to_key(method, options)
+    options[:symbolize] ? method : method.to_s
   end
 
   def self.should_recurse?(options)
@@ -84,7 +103,7 @@ module Ishin
   end
 
   def self.native_type?(value)
-    [String, Numeric, TrueClass, FalseClass].any? { |i| value.is_a?(i) }
+    [String, Numeric, TrueClass, FalseClass].any? { |type| value.is_a?(type) }
   end
 
   def self.defaults

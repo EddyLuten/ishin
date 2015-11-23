@@ -1,0 +1,6 @@
+AllCops:
+  Exclude:
+    - 'spec/**/*'
+Style/ClassVars:
+  Exclude:
+    - 'spec/spec_helper.rb'
